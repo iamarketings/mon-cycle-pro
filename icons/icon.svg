@@ -1,0 +1,49 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond dégradé -->
+  <defs>
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f472b6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="flowerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdf2f8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fce7f3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond rond -->
+  <circle cx="256" cy="256" r="240" fill="url(#backgroundGradient)" stroke="#be185d" stroke-width="8"/>
+  
+  <!-- Fleur stylisée (représentant la féminité) -->
+  <g transform="translate(256,256)">
+    <!-- Pétales -->
+    <ellipse cx="0" cy="-60" rx="25" ry="45" fill="url(#flowerGradient)" stroke="#be185d" stroke-width="2"/>
+    <ellipse cx="42" cy="-42" rx="25" ry="45" fill="url(#flowerGradient)" stroke="#be185d" stroke-width="2" transform="rotate(45)"/>
+    <ellipse cx="60" cy="0" rx="25" ry="45" fill="url(#flowerGradient)" stroke="#be185d" stroke-width="2" transform="rotate(90)"/>
+    <ellipse cx="42" cy="42" rx="25" ry="45" fill="url(#flowerGradient)" stroke="#be185d" stroke-width="2" transform="rotate(135)"/>
+    <ellipse cx="0" cy="60" rx="25" ry="45" fill="url(#flowerGradient)" stroke="#be185d" stroke-width="2" transform="rotate(180)"/>
+    <ellipse cx="-42" cy="42" rx="25" ry="45" fill="url(#flowerGradient)" stroke="#be185d" stroke-width="2" transform="rotate(225)"/>
+    <ellipse cx="-60" cy="0" rx="25" ry="45" fill="url(#flowerGradient)" stroke="#be185d" stroke-width="2" transform="rotate(270)"/>
+    <ellipse cx="-42" cy="-42" rx="25" ry="45" fill="url(#flowerGradient)" stroke="#be185d" stroke-width="2" transform="rotate(315)"/>
+    
+    <!-- Centre de la fleur -->
+    <circle cx="0" cy="0" r="20" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+    
+    <!-- Cercle calendrier symbolique -->
+    <circle cx="0" cy="0" r="65" fill="none" stroke="#be185d" stroke-width="3" stroke-dasharray="8,4"/>
+    
+    <!-- Points marqueurs (représentant les jours du cycle) -->
+    <circle cx="0" cy="-65" r="4" fill="#ef4444"/>  <!-- Ovulation -->
+    <circle cx="46" cy="-46" r="3" fill="#f59e0b"/>  <!-- Fertile -->
+    <circle cx="65" cy="0" r="3" fill="#f59e0b"/>     <!-- Fertile -->
+    <circle cx="46" cy="46" r="3" fill="#10b981"/>    <!-- Sûre -->
+    <circle cx="0" cy="65" r="4" fill="#ec4899"/>     <!-- Règles -->
+    <circle cx="-46" cy="46" r="3" fill="#10b981"/>   <!-- Sûre -->
+    <circle cx="-65" cy="0" r="3" fill="#10b981"/>    <!-- Sûre -->
+    <circle cx="-46" cy="-46" r="3" fill="#f59e0b"/>  <!-- Fertile -->
+  </g>
+  
+  <!-- Texte (optionnel pour les grandes tailles) -->
+  <text x="256" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#ffffff">Mon Cycle</text>
+  <text x="256" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="normal" fill="#fce7f3">Pro</text>
+</svg>
