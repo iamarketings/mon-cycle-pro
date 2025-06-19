@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Cycle Pro - Tracker Complet</title>
+    <meta name="description" content="Application complète de suivi menstruel">
+    <meta name="theme-color" content="#ec4899">
+    
+    <!-- PWA Meta tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Mon Cycle Pro">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Mon Cycle Pro">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 420px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: white;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ec4899, #f472b6);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ÉCRAN D'ACCUEIL */
+        .welcome-screen {
+            padding: 40px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: calc(100vh - 120px);
+        }
+
+        .welcome-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ec4899;
+            margin-bottom: 15px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .welcome-features {
+            text-align: left;
+            margin: 30px 0;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            width: 30px;
+        }
+
+        /* PWA Install Button */
+        .install-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .install-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        /* CONFIGURATION INITIALE */
+        .setup-screen {
+            padding: 20px;
+            display: none;
+        }
+
+        .setup-progress {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: bold;
+            color: #64748b;
+            position: relative;
+        }
+
+        .progress-step.active {
+            background: #ec4899;
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: #10b981;
+            color: white;
+        }
+
+        .progress-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 2px;
+            background: #e2e8f0;
+        }
+
+        .progress-step.completed:not(:last-child)::after {
+            background: #10b981;
+        }
+
+        .setup-step {
+            display: none;
+        }
+
+        .setup-step.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .step-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ec4899;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .step-description {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input[type="date"], input[type="number"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ec4899;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ec4899, #f472b6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b, #475569);
+            margin-right: 10px;
+            width: calc(50% - 5px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        /* ÉCRANS PRINCIPAUX */
+        .main-app {
+            display: none;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 12px;
+        }
+
+        .nav-tab.active {
+            color: #ec4899;
+            background: white;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #ec4899;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+        }
+
+        /* STATUT PRINCIPAL */
+        .main-status {
+            background: linear-gradient(135deg, #d1fae5, #10b981);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .main-status.status-fertile {
+            background: linear-gradient(135deg, #fef3c7, #f59e0b);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+        }
+
+        .main-status.status-danger {
+            background: linear-gradient(135deg, #fecaca, #ef4444);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.2);
+        }
+
+        .main-status.status-period {
+            background: linear-gradient(135deg, #fdf2f8, #ec4899);
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.2);
+        }
+
+        .status-icon {
+            font-size: 48px;
+            margin-right: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-content {
+            flex: 1;
+        }
+
+        .status-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #065f46;
+        }
+
+        .status-fertile .status-title {
+            color: #92400e;
+        }
+
+        .status-danger .status-title {
+            color: #991b1b;
+        }
+
+        .status-period .status-title {
+            color: #831843;
+        }
+
+        .status-subtitle {
+            font-size: 14px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .status-day {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* TIMELINE DU CYCLE */
+        .cycle-timeline {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .timeline-container {
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .timeline-track {
+            display: flex;
+            height: 80px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .timeline-phase {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            position: relative;
+            border-right: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-phase:last-child {
+            border-right: none;
+        }
+
+        .timeline-phase.current {
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .phase-period {
+            background: linear-gradient(135deg, #fdf2f8, #ec4899);
+            flex: 5;
+        }
+
+        .phase-safe {
+            background: linear-gradient(135deg, #d1fae5, #10b981);
+            flex: 4;
+        }
+
+        .phase-fertile {
+            background: linear-gradient(135deg, #fef3c7, #f59e0b);
+            flex: 7;
+        }
+
+        .phase-ovulation {
+            background: linear-gradient(135deg, #fecaca, #ef4444);
+            flex: 1;
+        }
+
+        .phase-emoji {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .phase-label {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+
+        .phase-days {
+            font-size: 9px;
+            opacity: 0.8;
+        }
+
+        .timeline-cursor {
+            position: absolute;
+            top: -10px;
+            font-size: 20px;
+            transform: translateX(-50%);
+            transition: left 0.5s ease;
+            z-index: 3;
+        }
+
+        /* LÉGENDE */
+        .legend-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .legend-emoji {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+
+        .legend-text {
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        /* CALENDRIER */
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            background: #ec4899;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-nav:hover {
+            background: #db2777;
+            transform: scale(1.1);
+        }
+
+        #calendarMonthTitle {
+            font-size: 18px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .calendar-header-day {
+            background: #64748b;
+            color: white;
+            font-weight: bold;
+            cursor: default;
+        }
+
+        .calendar-day.other-month {
+            color: #94a3b8;
+            background: #f8fafc;
+        }
+
+        .calendar-day.today {
+            background: #3b82f6;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.period {
+            background: #ec4899;
+            color: white;
+        }
+
+        .calendar-day.fertile {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .calendar-day.ovulation {
+            background: #10b981;
+            color: white;
+        }
+
+        .calendar-day.predicted {
+            border: 2px dashed #ec4899;
+        }
+
+        .calendar-day:hover:not(.calendar-header-day) {
+            transform: scale(1.1);
+            z-index: 1;
+        }
+
+        .calendar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+
+        .period-color { background: #ec4899; }
+        .fertile-color { background: #f59e0b; }
+        .ovulation-color { background: #10b981; }
+        .today-color { background: #3b82f6; }
+
+        /* STATISTIQUES */
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f0f9ff, #0284c7);
+            padding: 20px;
+            border-radius: 12px;
+            color: #0c4a6e;
+        }
+
+        .stat-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #0369a1;
+            font-size: 16px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0c4a6e;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .trend-chart {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .cycle-bar {
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 15px;
+            margin: 8px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cycle-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ec4899, #f472b6);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+
+        .prediction-item {
+            background: #fef2f8;
+            border: 1px solid #fbb6ce;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .prediction-date {
+            font-weight: bold;
+            color: #be185d;
+            font-size: 16px;
+        }
+
+        .prediction-desc {
+            color: #831843;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .comparison-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .comparison-your {
+            border-left: 4px solid #ec4899;
+        }
+
+        .comparison-average {
+            border-left: 4px solid #64748b;
+        }
+
+        /* HISTORIQUE */
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+            background: #f9fafb;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #ec4899;
+            background: white;
+        }
+
+        .cycle-history-item {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ec4899;
+            position: relative;
+        }
+
+        .cycle-date-header {
+            font-weight: bold;
+            color: #ec4899;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .cycle-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .cycle-detail {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .cycle-notes {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f0f9ff, #0284c7);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .notification {
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        .notification.error {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .cycle-entry {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ec4899;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                max-width: 100%;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>🌸 Mon Cycle Pro</h1>
+            <p>Tracker complet de cycle menstruel</p>
+        </div>
+
+        <!-- ÉCRAN D'ACCUEIL -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-icon">🌸</div>
+            <h2 class="welcome-title">Bienvenue dans Mon Cycle Pro</h2>
+            <p class="welcome-subtitle">L'application complète pour suivre votre cycle menstruel en toute simplicité</p>
+            
+            <div class="welcome-features">
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <span>Tableau de bord intelligent avec prédictions</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚠️</span>
+                    <span>Indicateur de risque en temps réel</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📅</span>
+                    <span>Calendrier visuel avec codes couleur</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <span>Données sauvegardées localement</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📈</span>
+                    <span>Statistiques et analyse de régularité</span>
+                </div>
+            </div>
+            
+            <button class="install-button" id="installButton">
+                📱 Installer l'application sur votre téléphone
+            </button>
+
+            <button class="btn" onclick="startSetup()">
+                🚀 Commencer la configuration
+            </button>
+        </div>
+
+        <!-- CONFIGURATION INITIALE -->
+        <div class="setup-screen" id="setupScreen">
+            <div class="setup-progress">
+                <div class="progress-step active" id="step1">1</div>
+                <div class="progress-step" id="step2">2</div>
+                <div class="progress-step" id="step3">3</div>
+            </div>
+
+            <!-- Étape 1: Dernières règles -->
+            <div class="setup-step active" id="setupStep1">
+                <h3 class="step-title">📅 Dernières règles</h3>
+                <p class="step-description">Pour commencer, nous avons besoin de la date de vos dernières règles</p>
+                
+                <div class="form-group">
+                    <label for="setupLastPeriod">Date du début de vos dernières règles :</label>
+                    <input type="date" id="setupLastPeriod" required>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn" onclick="nextStep(1)" id="nextStep1" disabled>
+                        Suivant →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Étape 2: Durées -->
+            <div class="setup-step" id="setupStep2">
+                <h3 class="step-title">⏱️ Durées de cycle</h3>
+                <p class="step-description">Aidez-nous à personnaliser vos prédictions</p>
+                
+                <div class="form-group">
+                    <label for="setupCycleLength">Durée habituelle de votre cycle :</label>
+                    <select id="setupCycleLength">
+                        <option value="">Sélectionnez...</option>
+                        <option value="21">21 jours (cycle court)</option>
+                        <option value="25">25 jours</option>
+                        <option value="28" selected>28 jours (cycle standard)</option>
+                        <option value="30">30 jours</option>
+                        <option value="32">32 jours</option>
+                        <option value="35">35 jours (cycle long)</option>
+                        <option value="other">Je ne sais pas / Irrégulier</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="setupPeriodLength">Durée habituelle de vos règles :</label>
+                    <select id="setupPeriodLength">
+                        <option value="">Sélectionnez...</option>
+                        <option value="3">3 jours (courtes)</option>
+                        <option value="4">4 jours</option>
+                        <option value="5" selected>5 jours (moyenne)</option>
+                        <option value="6">6 jours</option>
+                        <option value="7">7 jours (longues)</option>
+                        <option value="8">8 jours ou plus</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep(2)">← Retour</button>
+                    <button class="btn" onclick="nextStep(2)" id="nextStep2" disabled style="width: calc(50% - 5px);">
+                        Suivant →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Étape 3: Objectif -->
+            <div class="setup-step" id="setupStep3">
+                <h3 class="step-title">🎯 Votre objectif</h3>
+                <p class="step-description">Pourquoi utilisez-vous cette application ?</p>
+                
+                <div class="form-group">
+                    <label for="setupGoal">Objectif principal :</label>
+                    <select id="setupGoal">
+                        <option value="">Sélectionnez...</option>
+                        <option value="tracking">Suivre mon cycle naturellement</option>
+                        <option value="contraception">Contraception naturelle (méthode du calendrier)</option>
+                        <option value="conception">Essayer de concevoir un bébé</option>
+                        <option value="health">Surveiller ma santé reproductive</option>
+                    </select>
+                </div>
+
+                <div style="background: #fef3c7; padding: 15px; border-radius: 10px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+                    <p style="font-size: 14px; color: #92400e; margin: 0;">
+                        <strong>⚠️ Attention :</strong> Cette application est un outil de suivi. Pour la contraception ou la conception, consultez toujours un professionnel de santé.
+                    </p>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep(3)">← Retour</button>
+                    <button class="btn" onclick="finishSetup()" id="finishSetup" disabled style="width: calc(50% - 5px);">
+                        🎉 Terminer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- APPLICATION PRINCIPALE -->
+        <div class="main-app" id="mainApp">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('dashboard')">📊<br>Tableau</button>
+                <button class="nav-tab" onclick="switchTab('calendar')">📅<br>Calendrier</button>
+                <button class="nav-tab" onclick="switchTab('history')">📚<br>Historique</button>
+                <button class="nav-tab" onclick="switchTab('stats')">📈<br>Stats</button>
+                <button class="nav-tab" onclick="switchTab('data')">📝<br>Données</button>
+            </div>
+
+            <!-- TABLEAU DE BORD -->
+            <div class="tab-content active" id="dashboard">
+                <div class="notification" id="notification"></div>
+                
+                <!-- STATUT PRINCIPAL -->
+                <div class="main-status" id="mainStatus">
+                    <div class="status-icon" id="statusIcon">🟢</div>
+                    <div class="status-content">
+                        <div class="status-title" id="statusTitle">PÉRIODE SÛRE</div>
+                        <div class="status-subtitle" id="statusSubtitle">Rapports sans risque de grossesse</div>
+                        <div class="status-day">Jour <span id="currentDayMain">1</span> du cycle</div>
+                    </div>
+                </div>
+
+                <!-- TIMELINE DU CYCLE -->
+                <div class="cycle-timeline">
+                    <h3>📅 Votre cycle en un coup d'œil</h3>
+                    <div class="timeline-container">
+                        <div class="timeline-track">
+                            <div class="timeline-phase phase-period" id="phasePeriod">
+                                <span class="phase-emoji">🩸</span>
+                                <span class="phase-label">Règles</span>
+                                <span class="phase-days">J1-5</span>
+                            </div>
+                            <div class="timeline-phase phase-safe" id="phaseSafe1">
+                                <span class="phase-emoji">🟢</span>
+                                <span class="phase-label">Sûre</span>
+                                <span class="phase-days">J6-9</span>
+                            </div>
+                            <div class="timeline-phase phase-fertile" id="phaseFertile">
+                                <span class="phase-emoji">🟡</span>
+                                <span class="phase-label">Fertile</span>
+                                <span class="phase-days">J10-16</span>
+                            </div>
+                            <div class="timeline-phase phase-ovulation" id="phaseOvulation">
+                                <span class="phase-emoji">🔴</span>
+                                <span class="phase-label">Ovulation</span>
+                                <span class="phase-days">J14</span>
+                            </div>
+                            <div class="timeline-phase phase-safe" id="phaseSafe2">
+                                <span class="phase-emoji">🟢</span>
+                                <span class="phase-label">Sûre</span>
+                                <span class="phase-days">J17-28</span>
+                            </div>
+                        </div>
+                        <div class="timeline-cursor" id="timelineCursor">📍</div>
+                    </div>
+                </div>
+
+                <!-- LÉGENDE CLAIRE -->
+                <div class="legend-card">
+                    <h3>🔍 Légende</h3>
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <span class="legend-emoji">🟢</span>
+                            <span class="legend-text"><strong>SÛRE</strong> - Rapports OK</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-emoji">🟡</span>
+                            <span class="legend-text"><strong>ATTENTION</strong> - Période fertile</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-emoji">🔴</span>
+                            <span class="legend-text"><strong>DANGER</strong> - Ovulation</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-emoji">🩸</span>
+                            <span class="legend-text"><strong>RÈGLES</strong> - Menstruation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROCHAINES DATES -->
+                <div class="card">
+                    <h3>🔮 Prochaines dates importantes</h3>
+                    <div id="predictions">
+                        <!-- Prédictions générées -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- CALENDRIER -->
+            <div class="tab-content" id="calendar">
+                <div class="card">
+                    <h3>📅 Calendrier du cycle</h3>
+                    <div class="calendar-controls">
+                        <button class="calendar-nav" onclick="changeCalendarMonth(-1)">‹</button>
+                        <h4 id="calendarMonthTitle">Juin 2025</h4>
+                        <button class="calendar-nav" onclick="changeCalendarMonth(1)">›</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendrier généré dynamiquement -->
+                    </div>
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <span class="legend-color period-color"></span>
+                            <span>Règles</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color fertile-color"></span>
+                            <span>Période fertile</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color ovulation-color"></span>
+                            <span>Ovulation</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color today-color"></span>
+                            <span>Aujourd'hui</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>📊 Résumé du mois</h3>
+                    <div id="monthSummary">
+                        <!-- Résumé mensuel -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATISTIQUES -->
+            <div class="tab-content" id="stats">
+                <div class="card">
+                    <h3>📈 Statistiques de régularité</h3>
+                    <div id="regularityStats">
+                        <!-- Stats de régularité -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Analyse des tendances</h3>
+                    <div id="trendAnalysis">
+                        <!-- Analyse des tendances -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔮 Prédictions avancées</h3>
+                    <div id="advancedPredictions">
+                        <!-- Prédictions avancées -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Comparaison avec la moyenne</h3>
+                    <div id="comparisonStats">
+                        <!-- Comparaison avec moyennes générales -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORIQUE DES CYCLES -->
+            <div class="tab-content" id="history">
+                <div class="card">
+                    <h3>📚 Historique complet des cycles</h3>
+                    <p>Gérez tous vos cycles précédents pour une analyse plus précise</p>
+                </div>
+
+                <div class="card">
+                    <h3>➕ Ajouter un cycle précédent</h3>
+                    
+                    <div class="form-group">
+                        <label for="historyPeriodDate">Date du début des règles :</label>
+                        <input type="date" id="historyPeriodDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="historyPeriodLength">Durée des règles (jours) :</label>
+                        <input type="number" id="historyPeriodLength" value="5" min="3" max="8" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="historyCycleLength">Durée du cycle (jours) :</label>
+                        <input type="number" id="historyCycleLength" value="28" min="21" max="35" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="historyNotes">Notes (optionnel) :</label>
+                        <textarea id="historyNotes" placeholder="Symptômes, événements particuliers..." rows="3"></textarea>
+                    </div>
+
+                    <button class="btn" onclick="addHistoricalCycle()">
+                        Ajouter ce cycle
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Tous vos cycles</h3>
+                    <div id="allCyclesHistory">
+                        <!-- Historique complet généré -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Statistiques avancées</h3>
+                    <div id="advancedStats">
+                        <!-- Statistiques générées -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- DONNÉES -->
+            <div class="tab-content" id="data">
+                <div class="card">
+                    <h3>➕ Ajouter un nouveau cycle</h3>
+                    
+                    <div class="form-group">
+                        <label for="newPeriodDate">Date du début des règles :</label>
+                        <input type="date" id="newPeriodDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPeriodLength">Durée des règles (jours) :</label>
+                        <input type="number" id="newPeriodLength" value="5" min="3" max="8" required>
+                    </div>
+
+                    <button class="btn" onclick="addNewCycle()">
+                        Ajouter le cycle
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Cycles récents</h3>
+                    <div id="cycleHistory">
+                        <!-- Historique généré -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ Gestion des données</h3>
+                    <button class="btn btn-danger" onclick="clearAllData()">
+                        🗑️ Effacer toutes les données
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let userData = {};
+        let cycleData = [];
+        let currentStep = 1;
+        let currentCalendarMonth = new Date();
+        let deferredPrompt;
+
+        // Service Worker et PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Installation PWA
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installButton').style.display = 'block';
+        });
+
+        document.getElementById('installButton').addEventListener('click', (e) => {
+            document.getElementById('installButton').style.display = 'none';
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+            });
+        });
+
+        // Base de données locale (vraie sauvegarde)
+        class LocalDB {
+            static save(key, data) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                    console.log(`💾 Sauvegarde réussie: ${key}`, data);
+                    showNotification('Données sauvegardées sur votre téléphone !');
+                } catch (error) {
+                    console.error('Erreur sauvegarde:', error);
+                    showNotification('Erreur de sauvegarde', 'error');
+                }
+            }
+
+            static load(key) {
+                try {
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : (key === 'cycles' ? [] : null);
+                } catch (error) {
+                    console.error('Erreur chargement:', error);
+                    return key === 'cycles' ? [] : null;
+                }
+            }
+
+            static exists(key) {
+                const data = this.load(key);
+                return data !== null && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0);
+            }
+
+            static clear() {
+                try {
+                    localStorage.clear();
+                    cycleData = [];
+                    userData = {};
+                    showNotification('Toutes les données ont été effacées', 'error');
+                } catch (error) {
+                    console.error('Erreur suppression:', error);
+                    showNotification('Erreur lors de la suppression', 'error');
+                }
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier si l'utilisateur a déjà configuré l'app
+            if (LocalDB.exists('userData')) {
+                // Utilisateur existant - aller directement à l'app
+                userData = LocalDB.load('userData');
+                cycleData = LocalDB.load('cycles');
+                showMainApp();
+            } else {
+                // Nouveau utilisateur - afficher l'écran d'accueil
+                showWelcomeScreen();
+            }
+            
+            // Définir la date max à aujourd'hui
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('setupLastPeriod').max = today;
+            document.getElementById('newPeriodDate').max = today;
+            
+            // Ajouter les événements
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Validation en temps réel des champs
+            document.getElementById('setupLastPeriod').addEventListener('change', function() {
+                validateStep(1);
+            });
+
+            document.getElementById('setupCycleLength').addEventListener('change', function() {
+                validateStep(2);
+            });
+
+            document.getElementById('setupPeriodLength').addEventListener('change', function() {
+                validateStep(2);
+            });
+
+            document.getElementById('setupGoal').addEventListener('change', function() {
+                validateStep(3);
+            });
+        }
+
+        function showWelcomeScreen() {
+            document.getElementById('welcomeScreen').style.display = 'flex';
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        function startSetup() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('setupScreen').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        function showMainApp() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            updateDashboard();
+            updateCycleHistory();
+            generateCalendar();
+        }
+
+        function validateStep(step) {
+            let isValid = false;
+            let nextButton;
+
+            switch(step) {
+                case 1:
+                    const lastPeriod = document.getElementById('setupLastPeriod').value;
+                    isValid = lastPeriod !== '';
+                    nextButton = document.getElementById('nextStep1');
+                    break;
+                
+                case 2:
+                    const cycleLength = document.getElementById('setupCycleLength').value;
+                    const periodLength = document.getElementById('setupPeriodLength').value;
+                    isValid = cycleLength !== '' && periodLength !== '';
+                    nextButton = document.getElementById('nextStep2');
+                    break;
+                
+                case 3:
+                    const goal = document.getElementById('setupGoal').value;
+                    isValid = goal !== '';
+                    nextButton = document.getElementById('finishSetup');
+                    break;
+            }
+
+            if (nextButton) {
+                nextButton.disabled = !isValid;
+            }
+        }
+
+        function nextStep(step) {
+            // Masquer l'étape actuelle
+            document.getElementById(`setupStep${step}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.add('completed');
+
+            // Afficher l'étape suivante
+            const nextStepNum = step + 1;
+            document.getElementById(`setupStep${nextStepNum}`).classList.add('active');
+            document.getElementById(`step${nextStepNum}`).classList.add('active');
+            
+            currentStep = nextStepNum;
+            validateStep(nextStepNum);
+        }
+
+        function prevStep(step) {
+            // Masquer l'étape actuelle
+            document.getElementById(`setupStep${step}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.remove('active');
+
+            // Réactiver l'étape précédente
+            const prevStepNum = step - 1;
+            document.getElementById(`setupStep${prevStepNum}`).classList.add('active');
+            document.getElementById(`step${prevStepNum}`).classList.remove('completed');
+            document.getElementById(`step${prevStepNum}`).classList.add('active');
+            
+            currentStep = prevStepNum;
+        }
+
+        function finishSetup() {
+            // Récupérer toutes les données
+            const lastPeriod = document.getElementById('setupLastPeriod').value;
+            const cycleLength = parseInt(document.getElementById('setupCycleLength').value) || 28;
+            const periodLength = parseInt(document.getElementById('setupPeriodLength').value) || 5;
+            const goal = document.getElementById('setupGoal').value;
+
+            // Sauvegarder les données utilisateur
+            userData = {
+                setupDate: new Date().toISOString(),
+                goal: goal,
+                defaultCycleLength: cycleLength,
+                defaultPeriodLength: periodLength
+            };
+
+            // Créer le premier cycle
+            const firstCycle = {
+                startDate: lastPeriod,
+                periodLength: periodLength,
+                cycleLength: cycleLength,
+                id: Date.now()
+            };
+
+            // Mettre à jour les variables globales
+            cycleData = [firstCycle];
+
+            // Sauvegarder VRAIMENT sur le téléphone
+            LocalDB.save('userData', userData);
+            LocalDB.save('cycles', cycleData);
+
+            // Afficher un message de succès
+            showNotification('Configuration sauvegardée sur votre téléphone ! 🎉');
+
+            // Aller à l'application principale
+            showMainApp();
+        }
+
+        function updateDashboard() {
+            if (cycleData.length === 0) return;
+
+            const lastCycle = cycleData[0];
+            const today = new Date();
+            const lastPeriodDate = new Date(lastCycle.startDate);
+            
+            // Calcul du jour actuel du cycle
+            const daysSinceLastPeriod = Math.floor((today - lastPeriodDate) / (1000 * 60 * 60 * 24));
+            const currentCycleDay = daysSinceLastPeriod + 1;
+            
+            // Calcul des jours jusqu'aux prochaines règles
+            const nextPeriodDate = new Date(lastPeriodDate);
+            nextPeriodDate.setDate(lastPeriodDate.getDate() + lastCycle.cycleLength);
+            const daysToNext = Math.ceil((nextPeriodDate - today) / (1000 * 60 * 60 * 24));
+            
+            // Calcul de la moyenne des cycles
+            const avgCycle = Math.round(cycleData.reduce((sum, cycle) => sum + cycle.cycleLength, 0) / cycleData.length);
+
+            // Mise à jour du statut principal
+            updateMainStatus(currentCycleDay, lastCycle);
+            
+            // Mise à jour de la timeline
+            updateTimeline(currentCycleDay, lastCycle);
+
+            // Mise à jour des prédictions
+            updatePredictions(lastCycle, avgCycle);
+        }
+        function updateMainStatus(currentDay, cycle) {
+            const statusElement = document.getElementById('mainStatus');
+            const iconElement = document.getElementById('statusIcon');
+            const titleElement = document.getElementById('statusTitle');
+            const subtitleElement = document.getElementById('statusSubtitle');
+            const dayElement = document.getElementById('currentDayMain');
+            
+            dayElement.textContent = currentDay;
+
+            // Calculer les phases
+            const periodLength = cycle.periodLength;
+            const ovulationDay = cycle.cycleLength - 14;
+            const fertileStart = ovulationDay - 5;
+            const fertileEnd = ovulationDay + 1;
+
+            // Réinitialiser les classes
+            statusElement.className = 'main-status';
+
+            if (currentDay <= periodLength) {
+                // RÈGLES EN COURS
+                statusElement.classList.add('status-period');
+                iconElement.textContent = '🩸';
+                titleElement.textContent = 'RÈGLES EN COURS';
+                subtitleElement.textContent = 'Menstruation - Jour ' + currentDay + ' sur ' + periodLength;
+            } else if (currentDay >= ovulationDay - 1 && currentDay <= ovulationDay + 1) {
+                // OVULATION - DANGER MAXIMUM
+                statusElement.classList.add('status-danger');
+                iconElement.textContent = '🔴';
+                titleElement.textContent = 'DANGER - OVULATION';
+                subtitleElement.textContent = 'Risque de grossesse TRÈS ÉLEVÉ';
+            } else if (currentDay >= fertileStart && currentDay <= fertileEnd) {
+                // PÉRIODE FERTILE - ATTENTION
+                statusElement.classList.add('status-fertile');
+                iconElement.textContent = '🟡';
+                titleElement.textContent = 'ATTENTION - FERTILE';
+                subtitleElement.textContent = 'Période fertile - Risque élevé';
+            } else {
+                // PÉRIODE SÛRE
+                statusElement.classList.add('status-safe');
+                iconElement.textContent = '🟢';
+                titleElement.textContent = 'PÉRIODE SÛRE';
+                subtitleElement.textContent = 'Rapports sans risque de grossesse';
+            }
+        }
+
+    </script>
+    
+    <!-- Fichier JavaScript principal -->
+    <script src="app.js"></script>
+</body>
+</html>

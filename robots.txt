@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: /sitemap.xml
+
+# Disallow indexing of sensitive or unnecessary files
+Disallow: /service-worker.js
+Disallow: /manifest.json
+Disallow: /*.json$
+
+# Allow indexing of the main application
+Allow: /index.html
+Allow: /
+
+# Cache directives for crawlers
+Crawl-delay: 1
