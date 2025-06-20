@@ -1,5 +1,5 @@
 {
-  "name": "Mon Cycle Pro - Tracker Complet",
+  "name": "Mon Cycle Pro",
   "short_name": "Mon Cycle Pro",
   "description": "Application complète de suivi menstruel avec prédictions intelligentes",
   "start_url": "/",
@@ -9,7 +9,11 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "fr",
-  "categories": ["health", "lifestyle", "medical"],
+  "categories": [
+    "health",
+    "lifestyle",
+    "medical"
+  ],
   "icons": [
     {
       "src": "icons/icon-72x72.png",
@@ -66,14 +70,24 @@
       "short_name": "Nouveau",
       "description": "Ajouter un nouveau cycle menstruel",
       "url": "/#nouveau-cycle",
-      "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Calendrier",
       "short_name": "Calendrier",
       "description": "Voir le calendrier des cycles",
       "url": "/#calendrier",
-      "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ],
   "screenshots": [
